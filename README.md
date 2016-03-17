@@ -1,1 +1,3 @@
-# go_board
+# Go(Game) Board
+
+Go logic in javascript.
