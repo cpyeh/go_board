@@ -72,15 +72,6 @@ for (var i=0 ; i < boardSize ; i++){
     }
 }
 
-
-// function show_square(id){
-//     console.log(id);
-//     document.getElementById(id).style.opacity = 0.3;
-// };
-// function dont_show_square(id){
-//     document.getElementById(id).style.opacity = 0;
-// };
-
 function show_z(id){
     var element_style = document.getElementById(id).style;
     element_style.opacity = 0.3;
@@ -125,7 +116,6 @@ function update_board(changes){
 
 
 function draw_stone(pos_value){
-    console.log(pos_value);
     var pos1 = pos_value>>5;
     var pos2 = 0x00001F & pos_value;
 

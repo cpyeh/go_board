@@ -139,11 +139,10 @@ GoBoard.prototype.move = function(pos1, pos2, color) {
 
     this.board[pos1][pos2] = color;
     this.updateGraph(pos1, pos2);
-    this.updateChi(pos1, pos2); // going through all the neighbors
+    this.updateChi(pos1, pos2); 
 
     // check if any of the neighbor is dead
     // if not and self is dead then it is invalid
-
     if (!this.checkValidWithNeighbor(pos1, pos2, color)){
             console.log('Invalid move...');
             this.remove(pos1, pos2);
@@ -239,7 +238,6 @@ GoBoard.prototype.checkValidWithNeighbor = function(pos1, pos2, color) {
             var neighbor_pos2 = neighbors[i][1];
             if (this.board[neighbor_pos1][neighbor_pos2] != color &&
                 this.isDead(neighbor_pos1,neighbor_pos2)){
-                    console.log("neighbor is dead :"+neighbor_pos1 +"," + neighbor_pos2);
                     return true;
             }
      }
@@ -279,7 +277,6 @@ GoBoard.prototype.removeDead = function(pos1, pos2, color){
             var neighbor_pos2 = neighbors[i][1];
             if (this.board[neighbor_pos1][neighbor_pos2] != color &&
                 this.isDead(neighbor_pos1,neighbor_pos2)){
-                    console.log(neighbor_pos1 + ',' + neighbor_pos2 + ' is dead.');
                     var deadBFSqueue = BFSQueue(this.connectedGraph, (neighbor_pos1<<5) + neighbor_pos2);
                     while(!deadBFSqueue.isEmpty()){
                             var node = deadBFSqueue.dequeue();
