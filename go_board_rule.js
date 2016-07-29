@@ -136,13 +136,12 @@ GoBoard.prototype.move = function(pos1, pos2, color) {
     if(!this.checkValid(pos1,pos2)){
         return {addStones:[], removeStones:[]};
     }
-
+    // make the move and update status
     this.board[pos1][pos2] = color;
     this.updateGraph(pos1, pos2);
-    this.updateChi(pos1, pos2); 
+    this.updateChi(pos1, pos2);
 
-    // check if any of the neighbor is dead
-    // if not and self is dead then it is invalid
+    // check if the move is valid
     if (!this.checkValidWithNeighbor(pos1, pos2, color)){
             console.log('Invalid move...');
             this.remove(pos1, pos2);
