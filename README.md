@@ -1,3 +1,3 @@
 # Go(Game) Board
 
-Go logic in javascript.
+Go Board Implementation.
