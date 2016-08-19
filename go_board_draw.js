@@ -41,19 +41,9 @@ for (i = 0; i < boardSize; i++) {
 
 }
 
-var star_positons = [{
-    x: 3,
-    y: 3
-}, {
-    x: 3,
-    y: 15
-}, {
-    x: 15,
-    y: 3
-}, {
-    x: 15,
-    y: 15
-}];
+var star_positons = [{x: 3, y: 3}, {x: 3, y: 15}, {x: 15, y: 3},
+                     {x: 15, y: 15}, { x: 9, y: 9}, { x: 9, y: 15},
+                     {x: 15,y: 9}, { x: 3, y: 9}, { x: 9, y: 3}];
 
 for (i = 0; i < star_positons.length; i++) {
     chart.append('circle')
@@ -66,8 +56,6 @@ for (i = 0; i < star_positons.length; i++) {
 }
 
 
-
-//click square
 for (var i = 0; i < boardSize; i++) {
     for (var j = 0; j < boardSize; j++) {
         // i+1, j+1 because the pos has to be in [1,boardSize]
@@ -111,17 +99,17 @@ function click_on_pos(id) {
     var pos2 = parseInt(positions[2]);
     var changes = go_board.move(pos1, pos2, current_color);
     update_board(changes);
-    if (changes.addStones.length == 1) {
+    if (changes.add.length == 1) {
         current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
     }
 }
 
 function update_board(changes) {
-    for (var i = 0; i < changes.addStones.length; i++) {
-        draw_stone(changes.addStones[i])
+    for (var i = 0; i < changes.add.length; i++) {
+        draw_stone(changes.add[i])
     }
-    for (var i = 0; i < changes.removeStones.length; i++) {
-        eliminate_stone(changes.removeStones[i])
+    for (var i = 0; i < changes.remove.length; i++) {
+        eliminate_stone(changes.remove[i])
     }
 }
 
