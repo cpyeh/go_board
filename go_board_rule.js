@@ -211,10 +211,16 @@ GoBoard.prototype.afterPlaceStoneCheck = function(pos) {
 
 GoBoard.prototype.postMove = function(pos){
     var deadPositions = this.removeDead(pos);
+
+    this.koHistory = this.koHistory.slice(0, this.moveCount);
     this.setKo(pos, deadPositions);
+
     this.changesHistory = this.changesHistory.slice(0, this.moveCount);
     this.changesHistory.push({ add: [this.hashOf(pos)], remove: deadPositions});
+
+    this.colorHistory = this.colorHistory.slice(0, this.moveCount);
     this.colorHistory.push(this.colorOf(pos));
+
     this.moveCount++;
 }
 
