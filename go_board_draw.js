@@ -99,13 +99,6 @@ function click_on_pos(id) {
     var pos2 = parseInt(positions[2]);
     var changes = go_board.move(pos1, pos2, current_color);
     update_board(changes);
-<<<<<<< HEAD
-    if (changes.add.length == 1) {
-        current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
-||||||| merged common ancestors
-    if (changes.addStones.length == 1) {
-        current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
-=======
 }
 
 document.onkeydown = undoOrRedo;
@@ -130,7 +123,6 @@ function undoOrRedo(e){
             var changes = go_board.redo();
             update_board(changes);
         }
->>>>>>> master
     }
     else if (e.keyCode == '36') { // home
         for (var i = 0; i < go_board.changesHistory.moveCount; i++) {
@@ -151,30 +143,14 @@ function undoOrRedo(e){
 }
 
 function update_board(changes) {
-<<<<<<< HEAD
-    for (var i = 0; i < changes.add.length; i++) {
-        draw_stone(changes.add[i])
-||||||| merged common ancestors
-    for (var i = 0; i < changes.addStones.length; i++) {
-        draw_stone(changes.addStones[i])
-=======
     if (changes.add.length == 0 && changes.remove.length == 0){
         return;
     }
     for (var i = 0; i < changes.add.length; i++) {
         drawStone(changes.add[i])
->>>>>>> master
     }
-<<<<<<< HEAD
-    for (var i = 0; i < changes.remove.length; i++) {
-        eliminate_stone(changes.remove[i])
-||||||| merged common ancestors
-    for (var i = 0; i < changes.removeStones.length; i++) {
-        eliminate_stone(changes.removeStones[i])
-=======
     for (var i = 0; i < changes.remove.length; i++) {
         eliminateStone(changes.remove[i])
->>>>>>> master
     }
     current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
 }
