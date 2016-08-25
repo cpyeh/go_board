@@ -99,42 +99,83 @@ function click_on_pos(id) {
     var pos2 = parseInt(positions[2]);
     var changes = go_board.move(pos1, pos2, current_color);
     update_board(changes);
-    if (changes.add.length == 1) {
-        current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
+}
+
+document.onkeydown = undoOrRedo;
+
+function undoOrRedo(e){
+    e = e || window.event;
+
+    if (e.keyCode == '33') { // page up
+        for (var i = 0; i < 5; i++) {
+            var changes = go_board.undo();
+            update_board(changes);
+        }
     }
+    else if (e.keyCode == '34') { // page down
+        for (var i = 0; i < 5; i++) {
+            var changes = go_board.redo();
+            update_board(changes);
+        }
+    }
+    else if (e.keyCode == '35') { // end
+        for (var i = 0; i < (go_board.changesHistory.length - go_board.moveCount); i++) {
+            var changes = go_board.redo();
+            update_board(changes);
+        }
+    }
+    else if (e.keyCode == '36') { // home
+        for (var i = 0; i < go_board.changesHistory.moveCount; i++) {
+            var changes = go_board.undo();
+            update_board(changes);
+        }
+    }
+    else if (e.keyCode == '37') { // left arrow
+       var changes = go_board.undo();
+       update_board(changes);
+    }
+    else if (e.keyCode == '39') { // right arrow
+       var changes = go_board.redo();
+       update_board(changes);
+    }
+
+
 }
 
 function update_board(changes) {
+    if (changes.add.length == 0 && changes.remove.length == 0){
+        return;
+    }
     for (var i = 0; i < changes.add.length; i++) {
-        draw_stone(changes.add[i])
+        drawStone(changes.add[i])
     }
     for (var i = 0; i < changes.remove.length; i++) {
-        eliminate_stone(changes.remove[i])
+        eliminateStone(changes.remove[i])
     }
+    current_color = (current_color == go_board.BLACK ? go_board.WHITE : go_board.BLACK);
 }
 
-
-function draw_stone(pos_value) {
+function drawStone(pos_value) {
     var pos1 = pos_value >> 5;
     var pos2 = 0x00001F & pos_value;
 
-    var stone = chart.insert('circle', ':first-child')
+    var stone = chart.append('circle', ':first-child')
         .attr('cx', margin.left + (pos1 - 1) * horizontal_gap)
         .attr('cy', margin.right + (pos2 - 1) * vertical_gap)
         .attr('r', vertical_gap / 2.3)
         .attr('id', 's_' + pos1 + '_' + pos2)
-        .style('opacity', 1)
+        .style('opacity', 1.0)
         .style('stroke', 'black')
-        .style('stroke-width', w / 250);
+        .style('stroke-width', w / 300);
 
     if (current_color == go_board.BLACK) {
         stone.style('fill', 'black');
     } else {
-        stone.style('fill', 'white');
+        stone.style('fill', 'rgb(255,255,255)');
     }
 }
 
-function eliminate_stone(pos_value) {
+function eliminateStone(pos_value) {
     var pos1 = pos_value >> 5;
     var pos2 = 0x00001F & pos_value;
     var element = document.getElementById('s_' + pos1 + '_' + pos2);

@@ -4,12 +4,11 @@ var Graph = function() {
 
 Graph.prototype.adj = function* (u) {
     if ((typeof this.graph[u]) == 'undefined') {
-        return {};
+        return;
     }
-    var adj_dict = this.graph[u];
-    for (let u in adj_dict) {
-        if (adj_dict.hasOwnProperty(u)) {
-            yield parseInt(u);
+    for (let v in this.graph[u]) {
+        if (this.graph[u].hasOwnProperty(v)) {
+            yield parseInt(v);
         }
     }
 }
@@ -27,17 +26,19 @@ Graph.prototype.addEdge = function(u, v) {
     this.setOneWay(v, u);
 }
 
-Graph.prototype.drop = function(v) {
-    var adj_nodes = this.adj(v);
-    for (let u of adj_nodes) {
-        delete this.graph[v][u];
+Graph.prototype.drop = function(u) {
+    for (let v of this.adj(u)) {
         delete this.graph[u][v];
+        delete this.graph[v][u];
     }
     return true;
 }
 
 Graph.prototype.hasNeighbors = function(u) {
-    return Object.keys(this.adj(u)).length > 0;
+    for (let v of this.adj(u)) {
+        return true;
+    }
+    return false;
 }
 
 Graph.prototype.setOneWay = function(u, v) {
@@ -52,8 +53,7 @@ Graph.prototype.bfsQueue = function*(node) {
     marked[node] = true;
     while (searchQueue.length != 0) {
         var v = searchQueue.shift();
-        var adj_nodes = this.adj(v);
-        for (let w of adj_nodes) {
+        for (let w of this.adj(v)) {
             if (!(w in marked)) {
                 marked[w] = true;
                 searchQueue.push(w);
@@ -78,8 +78,10 @@ function GoBoard(boardSize) {
     this.WHITE = 2;
     this.BORDER_LINE = 3;
     this.CURRENT_MOVE = 1;
-    this.changes_history = [];
-    this.ko_history = [];
+    this.moveCount = 0;
+    this.changesHistory = [];
+    this.koHistory = [];
+    this.colorHistory = [];
 
     for (var i = 0; i < this.boardSize + 2; i++) {
         this.board[i][0] = this.BORDER_LINE;
@@ -115,12 +117,50 @@ GoBoard.prototype.isStone = function(pos) {
     return (this.colorOf(pos) == this.BLACK || this.colorOf(pos) == this.WHITE);
 }
 
-GoBoard.prototype.latestChange = function(){
-    return this.changes_history[this.changes_history.length - 1];
+GoBoard.prototype.boardChange = function(){
+    return this.changesHistory[this.moveCount-1];
 }
 
 GoBoard.prototype.latestKo = function(){
-    return this.ko_history[this.ko_history.length - 1];
+    return this.koHistory[this.moveCount-1];
+}
+
+GoBoard.prototype.latestColor = function(){
+    return this.colorHistory[this.moveCount-1];
+}
+
+GoBoard.prototype.latestColorReverse = function(){
+    return (this.colorHistory[this.moveCount-1] * 2) % 3;
+}
+
+GoBoard.prototype.undo = function(){
+    if (this.moveCount==0){
+        return {add:[], remove:[]};
+    }
+    var changes = this.boardChange();
+    for (let i of changes.add) {
+        this.remove(this.posOf(i));
+    }
+    for (let i of changes.remove) {
+        this.placeStone(this.posOf(i), this.latestColorReverse());
+    }
+    this.moveCount--;
+    return {add:changes.remove, remove:changes.add};
+}
+
+GoBoard.prototype.redo = function(){
+    if (this.moveCount==this.changesHistory.length){
+        return {add:[], remove:[]};
+    }
+    this.moveCount++;
+    var changes = this.boardChange();
+    for (let i of changes.add) {
+        this.placeStone(this.posOf(i), this.latestColor());
+    }
+    for (let i of changes.remove) {
+        this.remove(this.posOf(i));
+    }
+    return changes;
 }
 
 GoBoard.prototype.move = function(pos1, pos2, color) {
@@ -131,12 +171,12 @@ GoBoard.prototype.move = function(pos1, pos2, color) {
         return { add: [], remove: [] };
     }
     this.postMove([pos1, pos2]);
-    return this.latestChange();
+    return this.boardChange();
 }
 
 GoBoard.prototype.preMove = function(pos, color) {
     this.beforePlaceStoneCheck(pos);
-    this.placeStone(pos,color);
+    this.placeStone(pos, color);
     this.afterPlaceStoneCheck(pos);
 }
 
@@ -172,16 +212,19 @@ GoBoard.prototype.afterPlaceStoneCheck = function(pos) {
 GoBoard.prototype.postMove = function(pos){
     var deadPositions = this.removeDead(pos);
     this.setKo(pos, deadPositions);
-    this.changes_history.push({ add: [this.hashOf(pos)], remove: deadPositions});
+    this.changesHistory = this.changesHistory.slice(0, this.moveCount);
+    this.changesHistory.push({ add: [this.hashOf(pos)], remove: deadPositions});
+    this.colorHistory.push(this.colorOf(pos));
+    this.moveCount++;
 }
 
 GoBoard.prototype.setKo = function(pos, deadPositions) {
     var onlyGotOne = (deadPositions.length == 1);
     var onItsOwn = (!this.connectedGraph.hasNeighbors(pos));
     if (onlyGotOne && onItsOwn) {
-        this.ko_history.push(deadPositions[0]);
+        this.koHistory.push(deadPositions[0]);
     } else {
-        this.ko_history.push(-1);
+        this.koHistory.push(-1);
     }
 }
 
@@ -233,9 +276,9 @@ GoBoard.prototype.isDead = function(pos) {
 }
 
 GoBoard.prototype.remove = function(pos) {
-    this.resetLiberty(pos);
-    this.resetGraph(pos);
     this.board[pos[0]][pos[1]] = this.NO_STONE;
+    this.resetGraph(pos);
+    this.resetLiberty(pos);
 };
 
 GoBoard.prototype.resetLiberty = function(pos) {
