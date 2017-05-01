@@ -233,8 +233,6 @@ GoBoard.prototype.setKo = function(pos, deadPositions) {
             onItsOwn = false;
         }
     }
-    console.log("onlyGotOne: " + onlyGotOne);
-    console.log("onItsOwn: " + onItsOwn);
     if (onlyGotOne && onItsOwn) {
         this.koHistory.push(deadPositions[0]);
     } else {

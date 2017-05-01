@@ -21,6 +21,9 @@ var margin = {
     left: horizontal_gap
 };
 
+if (typeof io != 'undefined'){
+    var socket = io();
+}
 
 for (i = 0; i < boardSize; i++) {
     chart.append('line')
@@ -93,12 +96,25 @@ function dont_show_z(id) {
 var go_board = new GoBoard(boardSize);
 var current_color = go_board.BLACK;
 
-function click_on_pos(id) {
+function click_on_pos(id, no_emit) {
     var positions = id.split('_');
     var pos1 = parseInt(positions[1]);
     var pos2 = parseInt(positions[2]);
     var changes = go_board.move(pos1, pos2, current_color);
     update_board(changes);
+    if (no_emit){
+        return;
+    }
+    if(typeof socket != 'undefined'){
+        socket.emit('place stone', 'z_' + pos1 + '_' + pos2);
+    }
+}
+
+
+if(typeof socket != 'undefined'){
+  socket.on('place stone', function(msg){
+     click_on_pos(msg, true);
+  });
 }
 
 document.onkeydown = undoOrRedo;

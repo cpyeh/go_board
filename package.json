@@ -1,0 +1,26 @@
+{
+  "name": "go_board",
+  "version": "1.0.0",
+  "description": "minimum version of go board",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cpyeh/go_board.git"
+  },
+  "author": "cpyeh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cpyeh/go_board/issues"
+  },
+  "homepage": "https://github.com/cpyeh/go_board#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {
+    "socket.io": "^1.7.3"
+  }
+}
