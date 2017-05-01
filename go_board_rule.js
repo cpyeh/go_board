@@ -226,7 +226,15 @@ GoBoard.prototype.postMove = function(pos){
 
 GoBoard.prototype.setKo = function(pos, deadPositions) {
     var onlyGotOne = (deadPositions.length == 1);
-    var onItsOwn = (!this.connectedGraph.hasNeighbors(pos));
+    var onItsOwn = true;
+    var neighbors = this.neighborsOf(pos);
+    for (let neighbor of neighbors) {
+        if (this.colorOf(neighbor) == this.colorOf(pos)) {
+            onItsOwn = false;
+        }
+    }
+    console.log("onlyGotOne: " + onlyGotOne);
+    console.log("onItsOwn: " + onItsOwn);
     if (onlyGotOne && onItsOwn) {
         this.koHistory.push(deadPositions[0]);
     } else {
