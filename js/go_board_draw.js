@@ -98,22 +98,24 @@ for (let i = 0; i < boardSize; i++) {
 
 function show_z(id) {
     const element_style = document.getElementById(id).style;
-    element_style.opacity = 0.3;
-    if (myColor && myColor === currentTurn) {
-        if (myColor === go_board.BLACK) {
-            element_style.fill = 'blue'; // Or 'black' to show actual stone color
-            element_style.stroke = 'blue';
-        } else if (myColor === go_board.WHITE) {
-            element_style.fill = 'lightgrey'; // Or 'white' to show actual stone color
-            element_style.stroke = 'blue';
+
+    if (myColor && myColor === currentTurn) { // Check if it's my turn and myColor is set
+        if (myColor === 'black') {
+            element_style.fill = 'black'; // Preview with actual stone color
+            element_style.stroke = 'black';
+        } else if (myColor === 'white') {
+            element_style.fill = 'white';
+            element_style.stroke = 'black'; // Stroke for white stone often black
+        } else { // Should not happen if myColor is 'black' or 'white'
+            element_style.fill = 'gray';
+            element_style.stroke = 'gray';
         }
-        element_style.strokeWidth = w / 250;
-    } else {
-        // Neutral hover if not player's turn or no color assigned
-        element_style.fill = 'grey';
-        element_style.stroke = 'grey';
-        element_style.strokeWidth = w / 250;
+    } else { // Not my turn, or game not started fully for this client
+        element_style.fill = 'gray'; // Or some other neutral indication
+        element_style.stroke = 'gray';
     }
+    element_style.opacity = 0.3;
+    element_style.strokeWidth = w / 250; // Make sure this is preserved
 }
 
 function dont_show_z(id) {
@@ -121,6 +123,12 @@ function dont_show_z(id) {
 }
 
 const go_board = new GoBoard(boardSize); // Client-side board representation for drawing
+
+// Color mapping from server string to client GoBoard integer constants
+const SERVER_COLOR_TO_CLIENT_GOBOARD_COLOR = {
+    'black': go_board.BLACK, // Should be 1
+    'white': go_board.WHITE  // Should be 2
+};
 
 function click_on_pos(id) {
     if (!myColor || !gameId) {
@@ -176,16 +184,21 @@ if (socket) {
 
     socket.on('place stone', (data) => {
         console.log("Received 'place stone' from server:", data);
-        // data expected: { x, y, playerColor (who moved), turn (next turn) }
+        // data expected: { x, y, playerColor (string, who moved), turn (string, next turn) }
 
-        // The playerColor from server is who just moved.
-        const movedPlayerColor = data.playerColor;
+        const serverPlayerColorString = data.playerColor; // e.g., 'black' or 'white'
+        const clientGoBoardColor = SERVER_COLOR_TO_CLIENT_GOBOARD_COLOR[serverPlayerColorString]; // e.g., 1 or 2
 
-        // Update client-side GoBoard model
-        const changes = go_board.move(data.x, data.y, movedPlayerColor);
+        if (typeof clientGoBoardColor === 'undefined') {
+            console.error('Invalid playerColor received from server:', serverPlayerColorString);
+            return;
+        }
 
-        // Update the visual board
-        update_board_internal(changes, movedPlayerColor);
+        // Update client-side GoBoard model using the integer color
+        const changes = go_board.move(data.x, data.y, clientGoBoardColor);
+
+        // Update the visual board using the integer color
+        update_board_internal(changes, clientGoBoardColor);
 
         // Update whose turn it is next
         currentTurn = data.turn;
